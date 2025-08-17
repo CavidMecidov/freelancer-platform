@@ -25,7 +25,7 @@ import java.util.function.Function;
 
         public String generateAccessToken(User user) {
             String token = Jwts.builder()
-                    .setClaims(Map.of("roles", "ROLE_" + user.getRole().name())).setSubject(user.getUsername())//Token sahibi
+                    .setClaims(Map.of("roles", "ROLE_" + user.getRole().name())).setSubject(user.getEmail())//Token sahibi
                     .setIssuedAt(new Date())//Yaranma tarixi
                     .setExpiration(new Date(System.currentTimeMillis() + expireTime))//bitme muddeti
                     .signWith(getSignInKey(), SignatureAlgorithm.HS256)//imzalama

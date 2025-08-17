@@ -25,18 +25,15 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public LoginResponse register(UserRegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail()) ||
-                userRepository.existsByUsername(request.getUsername())) {
+        if (userRepository.existsByEmail(request.getEmail())){
             throw new ConflictException("Email or username already exist.");
         }
         User user = User.builder()
                 .name(request.getName())
                 .surname(request.getSurname())
-                .age(request.getAge())
                 .gender(request.getGender())
                 .birthday(request.getBirthdate())
                 .email(request.getEmail())
-                .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .isActive(true)

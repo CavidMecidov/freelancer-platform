@@ -18,14 +18,9 @@ public class UserRegisterRequest {
     private String name;
     @NotBlank(message = "Surname cannot be blank")
     private String surname;
-    @NotNull(message = "Age cannot be blank")
-    @Min(value = 18, message = "You must be at least 18 years old to register")
-    private Long age;
     @NotBlank(message = "Email cannot be blank")
     @Email(message = "Email format is invalid ")
     private String email;
-    @NotBlank(message = "Username cannot be blank")
-    private String username;
     @NotBlank(message = "Password cannot be blank")
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
@@ -33,5 +28,4 @@ public class UserRegisterRequest {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthdate;
     private Gender gender;
-    private Role role;
 }

@@ -21,7 +21,9 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
     @Override
-        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+        protected void doFilterInternal(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        FilterChain filterChain)
             throws ServletException, IOException {
             String path = request.getServletPath();
             if (path.equals("/api/v1/auth/sign-up") || path.equals("/api/v1/auth/login")

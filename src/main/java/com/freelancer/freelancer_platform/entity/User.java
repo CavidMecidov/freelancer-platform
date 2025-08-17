@@ -29,11 +29,9 @@ public class User implements UserDetails {
     private Long id;
     private String name;
     private String surname;
-    private Long age;
     private LocalDate birthday;
     @Column(unique = true, nullable = false)
-    private String username;
-    private String email;
+    private String email;//username
     private String password;
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -48,7 +46,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
 
     @Override

@@ -1,0 +1,46 @@
+package com.freelancer.freelancer_platform.controller;
+
+import com.freelancer.freelancer_platform.dto.UserRegisterRequest;
+import com.freelancer.freelancer_platform.dto.UserResponse;
+import com.freelancer.freelancer_platform.service.UserService;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("api/v1/users")
+@RequiredArgsConstructor
+public class UserController {
+    private final UserService userService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+        UserResponse userResponse = userService.getByUserId(id);
+        return ResponseEntity.ok(userResponse);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping("/update")
+    public ResponseEntity<UserResponse> updateUser(
+            @RequestBody @Valid UserRegisterRequest request) {
+        UserResponse userResponse = userService.updateUser(request);
+        return ResponseEntity.ok(userResponse);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok("User deleted successfully");
+
+    }
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse>getMyInformation(){
+         UserResponse response = userService.getMyInformation();
+        return ResponseEntity.ok(response);
+    }
+
+}
