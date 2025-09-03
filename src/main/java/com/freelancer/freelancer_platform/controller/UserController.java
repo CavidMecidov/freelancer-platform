@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/v1/users")
 @RequiredArgsConstructor
@@ -37,10 +39,21 @@ public class UserController {
         return ResponseEntity.ok("User deleted successfully");
 
     }
+
     @GetMapping("/me")
-    public ResponseEntity<UserResponse>getMyInformation(){
-         UserResponse response = userService.getMyInformation();
+    public ResponseEntity<UserResponse> getMyInformation() {
+        UserResponse response = userService.getMyInformation();
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponse>> searchUsers(@RequestParam String name,
+                                                          @RequestParam String surname,
+                                                          @RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "5") int size) {
+        List<UserResponse> responses = userService.searchUsers(name, surname, page, size);
+        return ResponseEntity.ok(responses);
+    }
 }
+
+

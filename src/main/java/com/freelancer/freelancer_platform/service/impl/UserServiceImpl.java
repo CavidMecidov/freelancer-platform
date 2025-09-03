@@ -4,10 +4,12 @@ import com.freelancer.freelancer_platform.config.PasswordEncoderConfig;
 import com.freelancer.freelancer_platform.dto.UserRegisterRequest;
 import com.freelancer.freelancer_platform.dto.UserResponse;
 import com.freelancer.freelancer_platform.entity.User;
+import com.freelancer.freelancer_platform.mapper.UserMapper;
 import com.freelancer.freelancer_platform.repository.UserRepository;
 import com.freelancer.freelancer_platform.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -17,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,14 +27,14 @@ import java.util.List;
 
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse updateUser(UserRegisterRequest request) {
         var email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         if (!user.getEmail().equals(email)) {
             throw new AccessDeniedException("User can only update own account");
         }
@@ -45,20 +48,13 @@ public class UserServiceImpl implements UserService {
         }
 
         User userUp = userRepository.save(user);
-        UserResponse userResponse = new UserResponse();
-        userResponse.setName(userUp.getName());
-        userResponse.setSurname(userUp.getSurname());
-        userResponse.setEmail(userUp.getEmail());
-        userResponse.setGender(userUp.getGender());
-        userResponse.setBirthdate(userUp.getBirthday());
-        return userResponse;
+        return userMapper.toResponse(userUp);
     }
 
     @Override
     public void deleteUser(Long id) {
         var email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         if (!user.getId().equals(id)) {
             throw new AccessDeniedException("User can only delete own account");
         }
@@ -67,8 +63,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getByUserId(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         UserResponse response = new UserResponse();
         response.setName(user.getName());
         response.setSurname(user.getSurname());
@@ -81,8 +76,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getMyInformation() {
         var email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         UserResponse response = new UserResponse();
         response.setName(user.getName());
         response.setSurname(user.getSurname());
@@ -93,9 +87,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponse> searchUsers(String name, String surname){
+    public List<UserResponse> searchUsers(String name, String surname, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> users = userRepository.findByNameContainingIgnoreCaseAndSurnameContainingIgnoreCase(name, surname, pageable);
+        List<UserResponse> responses = new ArrayList<>();
+        for (User user : users) {
+            UserResponse response = new UserResponse();
+            response.setName(user.getName());
+            response.setSurname(user.getSurname());
+            response.setEmail(user.getEmail());
+            response.setBirthdate(user.getBirthday());
+            response.setGender(user.getGender());
+            response.setActive(user.isActive());
+            responses.add(response);
+        }
 
-        Pageable pageable = PageRequest.of(page,size)
-        return List.of();
+        return responses;
     }
+
+
 }
+
+

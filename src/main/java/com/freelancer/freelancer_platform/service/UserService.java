@@ -10,9 +10,14 @@ import java.util.List;
 @Service
 public interface UserService {
     UserResponse updateUser(UserRegisterRequest request);
+
     void deleteUser(Long id);
+
     UserResponse getByUserId(Long id);
+
     UserResponse getMyInformation();
-    List<UserResponse>searchUsers(String name,String surname);
+
+    List<UserResponse> searchUsers(String name, String surname, int page, int size);
+
 
 }
