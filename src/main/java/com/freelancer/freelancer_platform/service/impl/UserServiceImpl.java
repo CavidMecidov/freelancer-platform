@@ -4,6 +4,7 @@ import com.freelancer.freelancer_platform.config.PasswordEncoderConfig;
 import com.freelancer.freelancer_platform.dto.UserRegisterRequest;
 import com.freelancer.freelancer_platform.dto.UserResponse;
 import com.freelancer.freelancer_platform.entity.User;
+import com.freelancer.freelancer_platform.enums.Role;
 import com.freelancer.freelancer_platform.mapper.UserMapper;
 import com.freelancer.freelancer_platform.repository.UserRepository;
 import com.freelancer.freelancer_platform.service.UserService;
@@ -20,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -34,17 +37,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse updateUser(UserRegisterRequest request) {
         var email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         if (!user.getEmail().equals(email)) {
             throw new AccessDeniedException("User can only update own account");
         }
         user.setName(request.getName());
         user.setSurname(request.getSurname());
-        user.setBirthday(request.getBirthdate());
+        user.setBirthday(request.getBirthday());
         user.setGender(request.getGender());
         user.setEmail(request.getEmail());
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(request.getPassword())); // ✅ Encode
+            user.setPassword(passwordEncoder.encode(request.getPassword())); //
         }
 
         User userUp = userRepository.save(user);
@@ -63,49 +67,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getByUserId(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        UserResponse response = new UserResponse();
-        response.setName(user.getName());
-        response.setSurname(user.getSurname());
-        response.setBirthdate(user.getBirthday());
-        response.setGender(user.getGender());
-        response.setEmail(user.getEmail());
-        return response;
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return userMapper.toResponse(user);
     }
 
     @Override
     public UserResponse getMyInformation() {
         var email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        UserResponse response = new UserResponse();
-        response.setName(user.getName());
-        response.setSurname(user.getSurname());
-        response.setBirthdate(user.getBirthday());
-        response.setGender(user.getGender());
-        response.setEmail(user.getEmail());
-        return response;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return userMapper.toResponse(user);
     }
 
     @Override
-    public List<UserResponse> searchUsers(String name, String surname, int page, int size) {
+    public Page<UserResponse> searchUsers(String name, String surname, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<User> users = userRepository.findByNameContainingIgnoreCaseAndSurnameContainingIgnoreCase(name, surname, pageable);
-        List<UserResponse> responses = new ArrayList<>();
-        for (User user : users) {
-            UserResponse response = new UserResponse();
-            response.setName(user.getName());
-            response.setSurname(user.getSurname());
-            response.setEmail(user.getEmail());
-            response.setBirthdate(user.getBirthday());
-            response.setGender(user.getGender());
-            response.setActive(user.isActive());
-            responses.add(response);
-        }
-
-        return responses;
+        Page<User> users = userRepository.searchUsers(name, surname, pageable);
+        return users.map(userMapper::toResponse);
     }
 
-
+    @Override
+    public UserResponse matchRandomFreelancer(String skill) {
+        List<User> candidates = userRepository.findByRoleAndIsOnlineAndSkillsContaining(Role.FREELANCER, true, skill);
+        if (candidates.isEmpty()) {
+            throw new RuntimeException("No online freelancer found for skill:" + skill);
+        }
+        Collections.shuffle(candidates);
+        User matched = candidates.get(0);
+        return userMapper.toResponse(matched);
+    }
 }
 
 

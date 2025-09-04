@@ -26,6 +26,6 @@ public class UserRegisterRequest {
     private String password;
     @NotNull(message = "Birthday cannot be null")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate birthdate;
+    private LocalDate birthday;
     private Gender gender;
 }

@@ -15,7 +15,7 @@ import java.time.LocalDate;
 public class UserResponse {
     private String name;
     private String surname;
-    private LocalDate birthdate;
+    private LocalDate birthday;
     private Gender gender;
     private String email;
     private boolean isActive;

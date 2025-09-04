@@ -32,10 +32,10 @@ public class AuthService {
                 .name(request.getName())
                 .surname(request.getSurname())
                 .gender(request.getGender())
-                .birthday(request.getBirthdate())
+                .birthday(request.getBirthday())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
+                .role(Role.FREELANCER)
                 .isActive(true)
                 .build();
         userRepository.save(user);

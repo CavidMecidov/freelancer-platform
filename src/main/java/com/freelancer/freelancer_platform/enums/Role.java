@@ -1,5 +1,8 @@
 package com.freelancer.freelancer_platform.enums;
 
 public enum Role {
-    USER,MODERATOR,ADMIN
+    MODERATOR,
+    ADMIN,
+    EMPLOYER,
+    FREELANCER
 }

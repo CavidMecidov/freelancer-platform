@@ -6,6 +6,7 @@ import com.freelancer.freelancer_platform.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -47,12 +48,19 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<UserResponse>> searchUsers(@RequestParam String name,
-                                                          @RequestParam String surname,
+    public ResponseEntity<Page<UserResponse>> searchUsers(@RequestParam(required = false) String name,
+                                                          @RequestParam(required = false) String surname,
                                                           @RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "5") int size) {
-        List<UserResponse> responses = userService.searchUsers(name, surname, page, size);
+        Page<UserResponse> responses = userService.searchUsers(name, surname, page, size);
         return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/freelancer")
+    public ResponseEntity<UserResponse> matchFreelancer(@RequestParam String skill) {
+        UserResponse matched = userService.matchRandomFreelancer(skill);
+        return ResponseEntity.ok(matched);
+
     }
 }
 

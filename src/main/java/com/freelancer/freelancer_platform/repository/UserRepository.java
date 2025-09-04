@@ -1,11 +1,15 @@
 package com.freelancer.freelancer_platform.repository;
 
 import com.freelancer.freelancer_platform.entity.User;
+import com.freelancer.freelancer_platform.enums.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -16,7 +20,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
-    Page<User> findByNameContainingIgnoreCaseAndSurnameContainingIgnoreCase(
-            String name, String surname, Pageable pageable
-    );
+    @Query("SELECT u FROM User u " +
+            "WHERE (:name IS NULL OR :name = '' OR LOWER(u.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
+            "AND (:surname IS NULL OR :surname = '' OR LOWER(u.surname) LIKE LOWER(CONCAT('%', :surname, '%')))")
+    Page<User> searchUsers(@Param("name") String name,
+                           @Param("surname") String surname,
+                           Pageable pageable);
+
+    List<User> findByRoleAndIsOnlineAndSkillsContaining(Role role, Boolean isActive, String skill);
 }
