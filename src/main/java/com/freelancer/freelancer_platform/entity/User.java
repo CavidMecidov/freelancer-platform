@@ -1,5 +1,6 @@
 package com.freelancer.freelancer_platform.entity;
 
+import com.freelancer.freelancer_platform.dto.SkillResponse;
 import com.freelancer.freelancer_platform.enums.Gender;
 import com.freelancer.freelancer_platform.enums.Role;
 import jakarta.persistence.*;
@@ -39,7 +40,7 @@ public class User implements UserDetails {
     private Gender gender;
     @Enumerated(EnumType.STRING)
     private Role role;
-    private boolean isActive;
+    private boolean isActive = false;
 
     @ManyToMany
     @JoinTable(
