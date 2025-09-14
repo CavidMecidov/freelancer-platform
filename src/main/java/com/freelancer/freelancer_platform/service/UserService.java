@@ -19,7 +19,10 @@ public interface UserService {
     UserResponse getMyInformation();
 
     Page<UserResponse> searchUsers(String name, String surname, int page, int size);
+
     UserResponse matchRandomFreelancer(String skill);
+
+    void updateOnlileStatus( boolean isActive);
 
 
 }

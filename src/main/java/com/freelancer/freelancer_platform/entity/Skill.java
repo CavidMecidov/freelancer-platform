@@ -18,7 +18,8 @@ public class Skill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @ManyToMany(mappedBy = "skill")
-    private List<User> users =  new ArrayList<>();
+
+
+
 
 }

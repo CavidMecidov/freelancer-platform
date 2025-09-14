@@ -89,13 +89,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse matchRandomFreelancer(String skill) {
-        List<User> candidates = userRepository.findByRoleAndIsOnlineAndSkillsContaining(Role.FREELANCER, true, skill);
+        List<User> candidates = userRepository.findByRoleAndIsActiveAndSkillName(Role.USER, true, skill);
         if (candidates.isEmpty()) {
             throw new RuntimeException("No online freelancer found for skill:" + skill);
         }
         Collections.shuffle(candidates);
         User matched = candidates.get(0);
         return userMapper.toResponse(matched);
+    }
+
+    @Override
+    public void updateOnlileStatus(boolean isActive) {
+        var email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currenUser = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        currenUser.setActive(isActive);
+        userRepository.save(currenUser);
     }
 }
 

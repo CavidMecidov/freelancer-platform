@@ -33,24 +33,30 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf(AbstractHttpConfigurer::disable)
-                .cors(httpSecurityCorsConfigurer
-                        -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
-                .sessionManagement(httpSecuritySessionManagementConfigurer ->
-                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/v1/auth/login",
+        httpSecurity
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        // Açıq endpoint-lər
+                        .requestMatchers("/api/v1/auth/login",
                                 "/api/v1/auth/sign-up",
-                                "/api/v1/users/*",
+                                "/api/v1/users/search",
                                 "/swagger-ui/**")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated())
-                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class).authenticationProvider(authenticationProvider());
+                        .permitAll()
+                        .requestMatchers("/api/v1/users/freelancer")
+                        .hasRole("USER")
+                        .requestMatchers("/api/v1/users/**")
+                        .authenticated()
+                        .anyRequest()
+                        .authenticated()
+                )
+                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider());
+
         return httpSecurity.build();
-
-
     }
+
 
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -71,13 +77,13 @@ public class SecurityConfig {
     }
 
     @Bean
-        public AuthenticationProvider authenticationProvider() {
-            DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-            daoAuthenticationProvider.setUserDetailsService(userDetailsService);  // <-- Bura əlavə et
-            daoAuthenticationProvider.setPasswordEncoder(passwordEncoderConfig.getPasswordEncoder());
-            return daoAuthenticationProvider;
-        }
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);  // <-- Bura əlavə et
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoderConfig.getPasswordEncoder());
+        return daoAuthenticationProvider;
     }
+}
 
 
 

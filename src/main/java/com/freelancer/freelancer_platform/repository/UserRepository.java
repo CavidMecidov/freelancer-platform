@@ -27,5 +27,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
                            @Param("surname") String surname,
                            Pageable pageable);
 
-    List<User> findByRoleAndIsOnlineAndSkillsContaining(Role role, Boolean isActive, String skill);
-}
+    @Query("SELECT u FROM User u JOIN u.skills s WHERE u.role = :role AND u.isActive = :isActive AND s.name = :skillName")
+    List<User> findByRoleAndIsActiveAndSkillName(
+            @Param("role") Role role,
+            @Param("isActive") Boolean isActive,
+            @Param("skillName") String skillName
+    );
+
+};

@@ -56,11 +56,21 @@ public class UserController {
         return ResponseEntity.ok(responses);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/freelancer")
-    public ResponseEntity<UserResponse> matchFreelancer(@RequestParam String skill) {
+    public ResponseEntity<UserResponse> matchFreelancer(@RequestParam @Valid String skill) {
         UserResponse matched = userService.matchRandomFreelancer(skill);
+        System.out.println(matched);
         return ResponseEntity.ok(matched);
 
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PatchMapping("/status")
+    public ResponseEntity<String> updateStatus(@RequestParam boolean isActive) {
+        userService.updateOnlileStatus(isActive
+        );
+        return ResponseEntity.ok("Status updated successfully to " + isActive);
     }
 }
 
