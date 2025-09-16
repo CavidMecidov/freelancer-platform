@@ -41,6 +41,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
     private boolean isActive = false;
+    private LocalDateTime lastSeenAt;
 
     @ManyToMany
     @JoinTable(

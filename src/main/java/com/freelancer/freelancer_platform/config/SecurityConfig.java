@@ -46,6 +46,8 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/api/v1/users/freelancer")
                         .hasRole("USER")
+                        .requestMatchers("/api/v1/users/status")
+                        .hasRole("USER")
                         .requestMatchers("/api/v1/users/**")
                         .authenticated()
                         .anyRequest()

@@ -66,8 +66,9 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PatchMapping("/status")
+    @PostMapping("/status")
     public ResponseEntity<String> updateStatus(@RequestParam boolean isActive) {
+        System.out.println("Mecidov Cavid");
         userService.updateOnlileStatus(isActive
         );
         return ResponseEntity.ok("Status updated successfully to " + isActive);
