@@ -4,17 +4,20 @@ import com.freelancer.freelancer_platform.entity.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface MessageRepository extends JpaRepository<Message,Long> {
-    List<Message>findByReceiverId(Long receiverId);
-    List<Message>findBySenderIdAndReceiverId(Long senderId,Long receiverId);
+@Repository
+public interface MessageRepository extends JpaRepository<Message, Long> {
+
+    List<Message> findByReceiver_Id(Long receiverId);
+
+    List<Message> findBySender_IdAndReceiver_Id(Long senderId, Long receiverId);
+
     @Query("SELECT m FROM Message m WHERE " +
-            "(m.senderId = :user1 AND m.receiverId = :user2) OR " +
-            "(m.senderId = :user2 AND m.receiverId = :user1) " +
-            "ORDER BY m.createdAt ASC")
+            "(m.sender.id = :user1 AND m.receiver.id = :user2) OR " +
+            "(m.sender.id = :user2 AND m.receiver.id = :user1) " +
+            "ORDER BY m.sendAt ASC")
     List<Message> findConversation(@Param("user1") Long user1, @Param("user2") Long user2);
-
-
 }
