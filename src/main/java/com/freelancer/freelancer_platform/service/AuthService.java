@@ -25,7 +25,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public LoginResponse register(UserRegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())){
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("Email or username already exist.");
         }
         User user = User.builder()
@@ -59,8 +59,10 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         if (!user.isActive()) {
-            throw new RuntimeException("User deactivated");
+            user.setActive(true);
+            userRepository.save(user);
         }
+
         String jwtToken = jwtService.generateAccessToken(user);
         return new LoginResponse(jwtToken);
     }

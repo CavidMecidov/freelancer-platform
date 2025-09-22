@@ -42,11 +42,14 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/login",
                                 "/api/v1/auth/sign-up",
                                 "/api/v1/users/search",
-                                "/swagger-ui/**")
+                                "/swagger-ui/**",
+                                "/ws/status/**")
                         .permitAll()
                         .requestMatchers("/api/v1/users/freelancer")
                         .hasRole("USER")
                         .requestMatchers("/api/v1/users/status")
+                        .hasRole("USER")
+                        .requestMatchers("/api/v1/messages/send")
                         .hasRole("USER")
                         .requestMatchers("/api/v1/users/**")
                         .authenticated()
