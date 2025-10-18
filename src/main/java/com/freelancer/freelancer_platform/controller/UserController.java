@@ -1,7 +1,9 @@
 package com.freelancer.freelancer_platform.controller;
 
+import com.freelancer.freelancer_platform.dto.UserDto;
 import com.freelancer.freelancer_platform.dto.UserRegisterRequest;
 import com.freelancer.freelancer_platform.dto.UserResponse;
+import com.freelancer.freelancer_platform.entity.User;
 import com.freelancer.freelancer_platform.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/users")
@@ -73,6 +76,20 @@ public class UserController {
         );
         return ResponseEntity.ok("Status updated successfully to " + isActive);
     }
+
+    @GetMapping("/All-users")
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserDto> users = userService.getAllUsers()
+                .stream()
+                .map(user -> new UserDto(user.getId(), user.getName() + " " + user.getSurname()))
+                .collect(Collectors.toList());
+        System.out.println(users);
+
+        return ResponseEntity.ok(users);
+    }
+
+
 }
+
 
 

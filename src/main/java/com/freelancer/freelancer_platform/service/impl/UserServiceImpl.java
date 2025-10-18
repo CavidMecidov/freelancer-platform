@@ -105,6 +105,11 @@ public class UserServiceImpl implements UserService {
         currenUser.setActive(isActive);
         userRepository.save(currenUser);
     }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 }
 
 

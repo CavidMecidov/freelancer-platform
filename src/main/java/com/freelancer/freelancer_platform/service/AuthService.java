@@ -35,7 +35,7 @@ public class AuthService {
                 .birthday(request.getBirthday())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.FREELANCER)
+                .role(Role.USER)
                 .isActive(true)
                 .build();
         userRepository.save(user);

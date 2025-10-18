@@ -1,11 +1,13 @@
 package com.freelancer.freelancer_platform.service.impl;
 
+import com.freelancer.freelancer_platform.entity.ChatMessage;
 import com.freelancer.freelancer_platform.entity.Message;
 import com.freelancer.freelancer_platform.entity.User;
 import com.freelancer.freelancer_platform.repository.MessageRepository;
 import com.freelancer.freelancer_platform.repository.UserRepository;
 import com.freelancer.freelancer_platform.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import java.util.List;
 public class MessageServiceİmpl implements MessageService {
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     private User getCurrenUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -35,7 +38,12 @@ public class MessageServiceİmpl implements MessageService {
         message.setContent(content);
         message.setRead(false);
         message.setSendAt(LocalDateTime.now());
-        return messageRepository.save(message);
+        Message saved = messageRepository.save(message);
+        messagingTemplate.convertAndSendToUser(
+                receiver.getUsername(), "/queue/messages", saved
+        );
+
+        return saved;
     }
 
     @Override
@@ -58,4 +66,10 @@ public class MessageServiceİmpl implements MessageService {
         m.setRead(true);
         messageRepository.save(m);
     }
-}
+
+    @Override
+    public void saveMessage(ChatMessage chatMessage) {
+            messageRepository.save(chatMessage);
+        }
+    }
+

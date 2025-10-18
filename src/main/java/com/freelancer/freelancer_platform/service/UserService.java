@@ -23,6 +23,7 @@ public interface UserService {
     UserResponse matchRandomFreelancer(String skill);
 
     void updateOnlileStatus( boolean isActive);
+    List<User>getAllUsers();
 
 
 }

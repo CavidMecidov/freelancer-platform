@@ -1,7 +1,6 @@
 package com.freelancer.freelancer_platform.config;
 
 import com.freelancer.freelancer_platform.filter.AuthorizationFilter;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,8 +12,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -27,9 +26,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
+
     private final AuthorizationFilter authorizationFilter;
     private final UserDetailsService userDetailsService;
-    private final PasswordEncoderConfig passwordEncoderConfig;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -38,23 +37,19 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Açıq endpoint-lər
-                        .requestMatchers("/api/v1/auth/login",
-                                "/api/v1/auth/sign-up",
-                                "/api/v1/users/search",
-                                "/swagger-ui/**",
-                                "/ws/status/**")
-                        .permitAll()
-                        .requestMatchers("/api/v1/users/freelancer")
-                        .hasRole("USER")
-                        .requestMatchers("/api/v1/users/status")
-                        .hasRole("USER")
-                        .requestMatchers("/api/v1/messages/send")
-                        .hasRole("USER")
-                        .requestMatchers("/api/v1/users/**")
-                        .authenticated()
-                        .anyRequest()
-                        .authenticated()
+                        // API və WebSocket endpoint-ləri
+                        .requestMatchers("/api/v1/auth/login", "/api/v1/auth/sign-up",
+                                "/ws/**", "/api/v1/users/**").permitAll() // burada /users açıq edildi
+                        // Static fayllar (frontend)
+                        .requestMatchers(
+                                "/index.html",
+                                "/js/**",
+                                "/css/**",
+                                "/favicon.ico"
+                        ).permitAll()
+                        // Digər bütün request-lər auth tələb edir
+                        .anyRequest().authenticated()
+
                 )
                 .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider());
@@ -62,10 +57,10 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOrigins(List.of("http://localhost:8080")); // frontend ünvanı
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("*"));
@@ -76,22 +71,19 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        AuthenticationManager authenticationManager = configuration.getAuthenticationManager();
-        return authenticationManager;
-
+        return configuration.getAuthenticationManager();
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService);  // <-- Bura əlavə et
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoderConfig.getPasswordEncoder());
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthenticationProvider;
     }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
-
-
-
-
-
-

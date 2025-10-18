@@ -1,5 +1,6 @@
 package com.freelancer.freelancer_platform.repository;
 
+import com.freelancer.freelancer_platform.entity.ChatMessage;
 import com.freelancer.freelancer_platform.entity.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +21,5 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             "(m.sender.id = :user2 AND m.receiver.id = :user1) " +
             "ORDER BY m.sendAt ASC")
     List<Message> findConversation(@Param("user1") Long user1, @Param("user2") Long user2);
+    void save(ChatMessage chatMessage);
 }
